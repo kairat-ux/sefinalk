@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/service/impl/UserServiceImpl.java
-
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.UserRegistrationRequestDTO;
@@ -118,11 +116,9 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
-                .role(user.getRole())
+                .role(user.getRole().toString())
                 .isActive(user.getIsActive())
-                .isBlocked(user.getIsBlocked())
                 .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

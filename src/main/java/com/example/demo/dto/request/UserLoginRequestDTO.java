@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/dto/request/UserLoginRequestDTO.java
-
 package com.example.demo.dto.request;
 
 import jakarta.validation.constraints.Email;

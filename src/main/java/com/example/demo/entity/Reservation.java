@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/entity/Reservation.java
-
 package com.example.demo.entity;
 
 import jakarta.persistence.*;

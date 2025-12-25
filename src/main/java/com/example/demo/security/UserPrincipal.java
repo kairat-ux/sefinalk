@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/security/UserPrincipal.java
-
 package com.example.demo.security;
 
 import com.example.demo.entity.User;

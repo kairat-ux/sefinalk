@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/service/impl/ReservationServiceImpl.java
-
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.ReservationCreateRequestDTO;
@@ -34,12 +32,10 @@ public class ReservationServiceImpl implements ReservationService {
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
                 .orElseThrow(() -> new RuntimeException("Ресторан не найден"));
 
-        RestaurantTable table = tableRepository.findById(request.getTableId())
-                .orElseThrow(() -> new RuntimeException("Столик не найден"));
-
-        if (!isTableAvailable(request.getTableId(), request.getReservationDate())) {
-            throw new RuntimeException("Столик недоступен на выбранную дату");
-        }
+        RestaurantTable table = tableRepository.findByRestaurantIdAndIsActiveTrue(request.getRestaurantId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Нет доступных столиков в ресторане"));
 
         Reservation reservation = Reservation.builder()
                 .user(user)
@@ -131,12 +127,6 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private ReservationResponseDTO mapToDTO(Reservation reservation) {
-        // Combine date and time for frontend compatibility
-        LocalDateTime reservationDateTime = null;
-        if (reservation.getReservationDate() != null && reservation.getStartTime() != null) {
-            reservationDateTime = LocalDateTime.of(reservation.getReservationDate(), reservation.getStartTime());
-        }
-
         return ReservationResponseDTO.builder()
                 .id(reservation.getId())
                 .userId(reservation.getUser().getId())
@@ -149,11 +139,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .status(reservation.getStatus().toString())
                 .specialRequests(reservation.getSpecialRequests())
                 .createdAt(reservation.getCreatedAt())
-                // Additional fields for frontend compatibility
-                .restaurantName(reservation.getRestaurant().getName())
-                .restaurantCity(reservation.getRestaurant().getCity())
-                .numberOfGuests(reservation.getGuestCount())
-                .reservationTime(reservationDateTime)
                 .build();
     }
 }

@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/entity/RestaurantImage.java
-
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -27,11 +25,10 @@ public class RestaurantImage {
     private String description;
 
     @Column(name = "is_main_image")
+    @Builder.Default
     private Boolean isMainImage = false;
 
-    @Column(name = "is_primary")
-    private Boolean isPrimary = false;
-
     @Column(name = "uploaded_at", nullable = false, updatable = false)
+    @Builder.Default
     private LocalDateTime uploadedAt = LocalDateTime.now();
 }

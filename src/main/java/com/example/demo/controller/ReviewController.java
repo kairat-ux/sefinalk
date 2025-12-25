@@ -1,14 +1,15 @@
-// ПУТЬ: src/main/java/com/example/demo/controller/ReviewController.java
-
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.ReviewCreateRequestDTO;
 import com.example.demo.dto.response.ReviewResponseDTO;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,16 +17,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ReviewController {
 
     private final ReviewService reviewService;
 
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            return ((UserPrincipal) auth.getPrincipal()).getId();
+        }
+        throw new RuntimeException("User not authenticated");
+    }
+
     @PostMapping
     public ResponseEntity<ReviewResponseDTO> createReview(
             @Valid @RequestBody ReviewCreateRequestDTO request) {
-        // userId будет получен из Spring Security context
-        ReviewResponseDTO review = reviewService.createReview(request, 1L);
+        Long userId = getCurrentUserId();
+        ReviewResponseDTO review = reviewService.createReview(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(review);
     }
 

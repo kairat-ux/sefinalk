@@ -1,14 +1,15 @@
-// ПУТЬ: src/main/java/com/example/demo/controller/PaymentController.java
-
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.PaymentCreateRequestDTO;
 import com.example.demo.dto.response.PaymentResponseDTO;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -17,16 +18,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class PaymentController {
 
     private final PaymentService paymentService;
 
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            return ((UserPrincipal) auth.getPrincipal()).getId();
+        }
+        throw new RuntimeException("User not authenticated");
+    }
+
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> createPayment(
             @Valid @RequestBody PaymentCreateRequestDTO request) {
-        // userId будет получен из Spring Security context
-        PaymentResponseDTO payment = paymentService.createPayment(request, 1L);
+        Long userId = getCurrentUserId();
+        PaymentResponseDTO payment = paymentService.createPayment(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(payment);
     }
 

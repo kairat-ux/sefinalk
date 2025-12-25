@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/dto/response/AuthResponseDTO.java
-
 package com.example.demo.dto.response;
 
 import lombok.AllArgsConstructor;

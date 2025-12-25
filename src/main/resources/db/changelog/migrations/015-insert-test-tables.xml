@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="015-insert-test-tables" author="kairat">
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="1"/>
+            <column name="table_number" value="1"/>
+            <column name="capacity" value="2"/>
+            <column name="location" value="WINDOW"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="1"/>
+            <column name="table_number" value="2"/>
+            <column name="capacity" value="4"/>
+            <column name="location" value="CENTER"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="1"/>
+            <column name="table_number" value="3"/>
+            <column name="capacity" value="6"/>
+            <column name="location" value="PRIVATE_ROOM"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="2"/>
+            <column name="table_number" value="1"/>
+            <column name="capacity" value="2"/>
+            <column name="location" value="WINDOW"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="2"/>
+            <column name="table_number" value="2"/>
+            <column name="capacity" value="4"/>
+            <column name="location" value="CENTER"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="3"/>
+            <column name="table_number" value="1"/>
+            <column name="capacity" value="2"/>
+            <column name="location" value="WINDOW"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="3"/>
+            <column name="table_number" value="2"/>
+            <column name="capacity" value="4"/>
+            <column name="location" value="CENTER"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="4"/>
+            <column name="table_number" value="1"/>
+            <column name="capacity" value="2"/>
+            <column name="location" value="WINDOW"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="4"/>
+            <column name="table_number" value="2"/>
+            <column name="capacity" value="4"/>
+            <column name="location" value="CENTER"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="5"/>
+            <column name="table_number" value="1"/>
+            <column name="capacity" value="2"/>
+            <column name="location" value="WINDOW"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+
+        <insert tableName="restaurant_tables">
+            <column name="restaurant_id" value="5"/>
+            <column name="table_number" value="2"/>
+            <column name="capacity" value="4"/>
+            <column name="location" value="CENTER"/>
+            <column name="is_active" value="true"/>
+            <column name="created_at" value="2025-12-21 12:00:00"/>
+            <column name="updated_at" value="2025-12-21 12:00:00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

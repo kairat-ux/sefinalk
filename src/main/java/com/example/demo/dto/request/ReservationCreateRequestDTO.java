@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/dto/request/ReservationCreateRequestDTO.java
-
 package com.example.demo.dto.request;
 
 import jakarta.validation.constraints.*;
@@ -19,9 +17,6 @@ public class ReservationCreateRequestDTO {
 
     @NotNull(message = "ID ресторана обязателен")
     private Long restaurantId;
-
-    @NotNull(message = "ID столика обязателен")
-    private Long tableId;
 
     @NotNull(message = "Дата обязательна")
     @Future(message = "Дата должна быть в будущем")

@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/config/WebConfig.java
-
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +9,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
+        registry.addMapping("/api/**")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(true)
+                .allowCredentials(false)
                 .exposedHeaders("Authorization")
                 .maxAge(3600);
     }

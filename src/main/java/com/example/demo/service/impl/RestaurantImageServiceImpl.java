@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,64 +16,79 @@ import java.util.List;
 @Transactional
 public class RestaurantImageServiceImpl implements RestaurantImageService {
 
-    private final RestaurantImageRepository restaurantImageRepository;
+    private final RestaurantImageRepository imageRepository;
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    @Transactional(readOnly = true)
-    public List<RestaurantImage> getImagesByRestaurantId(Long restaurantId) {
-        return restaurantImageRepository.findByRestaurantId(restaurantId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public RestaurantImage getImageById(Long id) {
-        return restaurantImageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Image not found with id: " + id));
-    }
-
-    @Override
-    public RestaurantImage addImage(Long restaurantId, String imageUrl, Boolean isPrimary) {
+    public RestaurantImage uploadImage(Long restaurantId, String imageUrl, String description) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + restaurantId));
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
 
-        if (Boolean.TRUE.equals(isPrimary)) {
-            List<RestaurantImage> existingImages = restaurantImageRepository.findByRestaurantId(restaurantId);
-            existingImages.forEach(img -> {
-                img.setIsPrimary(false);
-                restaurantImageRepository.save(img);
-            });
+        RestaurantImage image = RestaurantImage.builder()
+                .restaurant(restaurant)
+                .imageUrl(imageUrl)
+                .description(description)
+                .isMainImage(false)
+                .build();
+
+        return imageRepository.save(image);
+    }
+
+    @Override
+    public RestaurantImage addImage(Long restaurantId, String imageUrl, String description, Boolean isMainImage) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        if (isMainImage != null && isMainImage) {
+            List<RestaurantImage> allImages = imageRepository.findByRestaurantId(restaurantId);
+            for (RestaurantImage img : allImages) {
+                img.setIsMainImage(false);
+            }
+            imageRepository.saveAll(allImages);
         }
 
         RestaurantImage image = RestaurantImage.builder()
                 .restaurant(restaurant)
                 .imageUrl(imageUrl)
-                .isPrimary(isPrimary != null ? isPrimary : false)
-                .uploadedAt(LocalDateTime.now())
+                .description(description)
+                .isMainImage(isMainImage != null ? isMainImage : false)
                 .build();
 
-        return restaurantImageRepository.save(image);
+        return imageRepository.save(image);
+    }
+
+    @Override
+    public List<RestaurantImage> getRestaurantImages(Long restaurantId) {
+        return imageRepository.findByRestaurantId(restaurantId);
+    }
+
+    @Override
+    public RestaurantImage getImageById(Long id) {
+        return imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+    }
+
+    @Override
+    public void setMainImage(Long restaurantId, Long imageId) {
+        List<RestaurantImage> allImages = imageRepository.findByRestaurantId(restaurantId);
+        for (RestaurantImage img : allImages) {
+            img.setIsMainImage(false);
+        }
+        imageRepository.saveAll(allImages);
+
+        RestaurantImage image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+        image.setIsMainImage(true);
+        imageRepository.save(image);
+    }
+
+    @Override
+    public void setPrimaryImage(Long restaurantId, Long imageId) {
+        setMainImage(restaurantId, imageId);
     }
 
     @Override
     public void deleteImage(Long id) {
-        RestaurantImage image = getImageById(id);
-        restaurantImageRepository.delete(image);
-    }
-
-    @Override
-    public void setPrimaryImage(Long imageId) {
-        RestaurantImage image = getImageById(imageId);
-        
-        List<RestaurantImage> existingImages = restaurantImageRepository
-                .findByRestaurantId(image.getRestaurant().getId());
-        
-        existingImages.forEach(img -> {
-            img.setIsPrimary(false);
-            restaurantImageRepository.save(img);
-        });
-
-        image.setIsPrimary(true);
-        restaurantImageRepository.save(image);
+        imageRepository.deleteById(id);
     }
 }

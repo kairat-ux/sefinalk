@@ -9,74 +9,91 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/owner")
+@RequestMapping("/api/owner/restaurants")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
-@PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class RestaurantOwnerController {
 
     private final RestaurantService restaurantService;
 
-    @GetMapping("/restaurants")
-    public ResponseEntity<List<RestaurantDetailResponseDTO>> getMyRestaurants(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    private UserPrincipal getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            return (UserPrincipal) auth.getPrincipal();
+        }
+        throw new RuntimeException("User not authenticated");
+    }
+
+    @GetMapping
+    public ResponseEntity<List<RestaurantDetailResponseDTO>> getOwnerRestaurants() {
+        UserPrincipal userPrincipal = getCurrentUser();
         return ResponseEntity.ok(restaurantService.getOwnerRestaurants(userPrincipal.getId()));
     }
 
-    @PostMapping("/restaurants")
+    @PostMapping
     public ResponseEntity<RestaurantDetailResponseDTO> createRestaurant(
-            @Valid @RequestBody RestaurantCreateRequestDTO request,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @Valid @RequestBody RestaurantCreateRequestDTO request) {
+        UserPrincipal userPrincipal = getCurrentUser();
         RestaurantDetailResponseDTO restaurant = restaurantService.createRestaurant(request, userPrincipal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurant);
     }
 
-    @PutMapping("/restaurants/{id}")
-    public ResponseEntity<Void> updateRestaurant(
-            @PathVariable Long id,
-            @Valid @RequestBody RestaurantUpdateRequestDTO request,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        
+    @GetMapping("/{id}")
+    public ResponseEntity<RestaurantDetailResponseDTO> getRestaurant(@PathVariable Long id) {
+        UserPrincipal userPrincipal = getCurrentUser();
         List<RestaurantDetailResponseDTO> ownerRestaurants = restaurantService.getOwnerRestaurants(userPrincipal.getId());
         boolean isOwner = ownerRestaurants.stream().anyMatch(r -> r.getId().equals(id));
-        
+
         if (!isOwner) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new RuntimeException("Unauthorized");
         }
 
-        RestaurantCreateRequestDTO updateDTO = new RestaurantCreateRequestDTO();
-        updateDTO.setName(request.getName());
-        updateDTO.setDescription(request.getDescription());
-        updateDTO.setAddress(request.getAddress());
-        updateDTO.setCity(request.getCity());
-        updateDTO.setZipCode(request.getZipCode());
-        updateDTO.setPhone(request.getPhone());
-        updateDTO.setEmail(request.getEmail());
-
-        restaurantService.updateRestaurant(id, updateDTO);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(restaurantService.getRestaurantById(id));
     }
 
-    @DeleteMapping("/restaurants/{id}")
-    public ResponseEntity<Void> deleteRestaurant(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateRestaurant(@PathVariable Long id,
+                                                 @Valid @RequestBody RestaurantUpdateRequestDTO request) {
+        UserPrincipal userPrincipal = getCurrentUser();
         List<RestaurantDetailResponseDTO> ownerRestaurants = restaurantService.getOwnerRestaurants(userPrincipal.getId());
         boolean isOwner = ownerRestaurants.stream().anyMatch(r -> r.getId().equals(id));
-        
+
         if (!isOwner) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new RuntimeException("Unauthorized");
+        }
+
+        RestaurantCreateRequestDTO updateDTO = RestaurantCreateRequestDTO.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .address(request.getAddress())
+                .city(request.getCity())
+                .zipCode(request.getZipCode())
+                .phone(request.getPhone())
+                .email(request.getEmail())
+                .build();
+
+        restaurantService.updateRestaurant(id, updateDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
+        UserPrincipal userPrincipal = getCurrentUser();
+        List<RestaurantDetailResponseDTO> ownerRestaurants = restaurantService.getOwnerRestaurants(userPrincipal.getId());
+        boolean isOwner = ownerRestaurants.stream().anyMatch(r -> r.getId().equals(id));
+
+        if (!isOwner) {
+            throw new RuntimeException("Unauthorized");
         }
 
         restaurantService.deleteRestaurant(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/entity/Payment.java
-
 package com.example.demo.entity;
 
 import jakarta.persistence.*;

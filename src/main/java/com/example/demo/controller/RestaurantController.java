@@ -1,14 +1,15 @@
-// ПУТЬ: src/main/java/com/example/demo/controller/RestaurantController.java
-
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.RestaurantCreateRequestDTO;
 import com.example.demo.dto.response.RestaurantDetailResponseDTO;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,16 +17,27 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            return ((UserPrincipal) auth.getPrincipal()).getId();
+        }
+        return null;
+    }
+
     @PostMapping
     public ResponseEntity<RestaurantDetailResponseDTO> createRestaurant(
             @Valid @RequestBody RestaurantCreateRequestDTO request) {
-        // ownerId будет получен из Spring Security context
-        RestaurantDetailResponseDTO restaurant = restaurantService.createRestaurant(request, 1L);
+        Long ownerId = getCurrentUserId();
+        if (ownerId == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        RestaurantDetailResponseDTO restaurant = restaurantService.createRestaurant(request, ownerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurant);
     }
 

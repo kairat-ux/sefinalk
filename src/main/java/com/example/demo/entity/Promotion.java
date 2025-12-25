@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/entity/Promotion.java
-
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -23,27 +21,15 @@ public class Promotion {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(length = 1000)
-    private String description;
-
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(name = "discount_percentage", nullable = false)
-    private Integer discountPercentage;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal discount;
 
     @Column(name = "discount_type")
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
-
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
 
     @Column(name = "valid_from", nullable = false)
     private LocalDate validFrom;

@@ -20,5 +20,6 @@
     <include file="db/changelog/migrations/012-create-promotions-table.xml"/>
     <include file="db/changelog/migrations/013-create-indexes.xml"/>
     <include file="db/changelog/migrations/014-insert-base-data.xml"/>
+    <include file="db/changelog/migrations/015-insert-test-tables.xml" />
 
 </databaseChangeLog>
