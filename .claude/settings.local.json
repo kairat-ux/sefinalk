@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.gradlew.bat clean build --no-daemon --warning-mode all)",
+      "Bash(gradlew.bat clean build:*)",
+      "Bash(./gradlew clean build:*)",
+      "Bash(wc:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(./gradlew bootRun)",
+      "Bash(timeout 10 cmd:*)",
+      "Bash(curl:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout:*)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)"
+    ]
+  }
+}

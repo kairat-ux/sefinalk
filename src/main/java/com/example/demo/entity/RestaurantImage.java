@@ -29,6 +29,9 @@ public class RestaurantImage {
     @Column(name = "is_main_image")
     private Boolean isMainImage = false;
 
+    @Column(name = "is_primary")
+    private Boolean isPrimary = false;
+
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     private LocalDateTime uploadedAt = LocalDateTime.now();
 }

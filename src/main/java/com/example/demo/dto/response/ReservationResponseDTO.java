@@ -27,4 +27,10 @@ public class ReservationResponseDTO {
     private String status;
     private String specialRequests;
     private LocalDateTime createdAt;
+
+    // Additional fields for frontend compatibility
+    private String restaurantName;
+    private String restaurantCity;
+    private Integer numberOfGuests;
+    private LocalDateTime reservationTime;
 }

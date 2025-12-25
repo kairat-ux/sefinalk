@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class RestaurantController {
 
     private final RestaurantService restaurantService;

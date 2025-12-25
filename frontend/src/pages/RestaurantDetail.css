@@ -1,0 +1,229 @@
+.restaurant-detail {
+  min-height: calc(100vh - 80px);
+}
+
+.detail-hero {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+}
+
+.detail-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(44, 24, 16, 0.9), transparent);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--spacing-xxl) 0;
+}
+
+.detail-hero h1 {
+  font-size: 3.5rem;
+  color: white;
+  margin-bottom: var(--spacing-md);
+}
+
+.rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-gold);
+}
+
+.rating-badge .reviews {
+  color: var(--light-gold);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--spacing-xxl);
+  padding: var(--spacing-xxl) 0;
+}
+
+.detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.detail-section {
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-section h2 {
+  font-size: 2rem;
+  color: var(--deep-brown);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--gold);
+}
+
+.detail-section p {
+  color: var(--charcoal);
+  line-height: 1.8;
+  font-size: 1.125rem;
+}
+
+.contact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.contact-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: var(--spacing-md);
+  background: var(--soft-gray);
+  border-radius: var(--radius-md);
+}
+
+.contact-item svg {
+  font-size: 1.75rem;
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.contact-item strong {
+  display: block;
+  color: var(--deep-brown);
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.contact-item p {
+  font-size: 1rem;
+  color: var(--charcoal);
+  margin: 0;
+}
+
+.hours-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.hours-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--soft-gray);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+}
+
+.hours-item span:first-child {
+  color: var(--deep-brown);
+  font-weight: 600;
+}
+
+.hours-item span:last-child {
+  color: var(--charcoal);
+}
+
+.detail-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.booking-card {
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--gold);
+}
+
+.booking-card h3 {
+  font-size: 1.75rem;
+  color: var(--deep-brown);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.booking-form .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--deep-brown);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.booking-form .form-group label svg {
+  color: var(--gold);
+}
+
+.booking-form input,
+.booking-form select {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid var(--soft-gray);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: var(--font-body);
+  transition: var(--transition-normal);
+}
+
+.booking-form input:focus,
+.booking-form select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.booking-form .btn {
+  width: 100%;
+  justify-content: center;
+  font-size: 1.125rem;
+  padding: 1rem;
+  margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 968px) {
+  .detail-hero {
+    height: 300px;
+  }
+
+  .detail-hero h1 {
+    font-size: 2rem;
+  }
+
+  .detail-content {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-sidebar {
+    position: static;
+  }
+
+  .booking-card {
+    margin-bottom: var(--spacing-xl);
+  }
+}

@@ -28,5 +28,7 @@ public class UserRegistrationRequestDTO {
     @NotBlank(message = "Фамилия не может быть пустой")
     private String lastName;
 
+    @Pattern(regexp = "^\\+7\\s?7\\d{2}\\s?\\d{3}\\s?\\d{2}\\s?\\d{2}$",
+             message = "Номер телефона должен быть в формате +7 7XX XXX XX XX")
     private String phone;
 }

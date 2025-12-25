@@ -118,9 +118,11 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
-                .role(user.getRole().toString())
+                .role(user.getRole())
                 .isActive(user.getIsActive())
+                .isBlocked(user.getIsBlocked())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

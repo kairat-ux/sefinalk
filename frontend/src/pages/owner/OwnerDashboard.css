@@ -1,0 +1,230 @@
+.owner-dashboard {
+  min-height: calc(100vh - 80px);
+  padding-bottom: var(--spacing-xxl);
+  background: var(--soft-gray);
+}
+
+.hero-content-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.no-restaurants {
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 500px;
+  margin: var(--spacing-xxl) auto;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  color: var(--gold);
+  margin-bottom: var(--spacing-lg);
+}
+
+.no-restaurants h3 {
+  font-size: 2rem;
+  color: var(--deep-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.no-restaurants p {
+  font-size: 1.125rem;
+  color: var(--charcoal);
+  margin-bottom: var(--spacing-xl);
+}
+
+.owner-restaurants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.owner-restaurant-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-restaurant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.owner-card-header {
+  background: linear-gradient(135deg, var(--deep-brown), var(--warm-brown));
+  padding: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.owner-card-header h3 {
+  color: white;
+  font-size: 1.5rem;
+  margin: 0;
+  flex: 1;
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: var(--shadow-gold);
+}
+
+.rating-display svg {
+  font-size: 1rem;
+}
+
+.owner-card-body {
+  padding: var(--spacing-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.owner-card-body .info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+.owner-card-body .info-item svg {
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.description {
+  color: var(--charcoal);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.stats-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--soft-gray);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat strong {
+  font-size: 1.5rem;
+  color: var(--deep-brown);
+  font-weight: 700;
+}
+
+.stat span {
+  font-size: 0.875rem;
+  color: var(--charcoal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.owner-card-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--soft-gray);
+  border-top: 1px solid #ddd;
+}
+
+.owner-card-footer .action-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: var(--transition-normal);
+  border: none;
+  cursor: pointer;
+}
+
+.view-btn {
+  background: var(--gold);
+  color: white;
+}
+
+.view-btn:hover {
+  background: var(--dark-gold);
+  transform: translateY(-2px);
+}
+
+.edit-btn {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.edit-btn:hover {
+  background: #93c5fd;
+  transform: translateY(-2px);
+}
+
+.owner-card-footer .delete-btn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.owner-card-footer .delete-btn:hover {
+  background: #fca5a5;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .hero-content-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-content-flex .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .owner-restaurants-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rating-display {
+    align-self: flex-start;
+  }
+
+  .stats-row {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

@@ -4,11 +4,13 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.ReservationCreateRequestDTO;
 import com.example.demo.dto.response.ReservationResponseDTO;
+import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,17 +19,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class ReservationController {
 
     private final ReservationService reservationService;
 
     @PostMapping
     public ResponseEntity<ReservationResponseDTO> createReservation(
-            @Valid @RequestBody ReservationCreateRequestDTO request) {
-        // userId будет получен из Spring Security context
-        ReservationResponseDTO reservation = reservationService.createReservation(request, 1L);
+            @Valid @RequestBody ReservationCreateRequestDTO request,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        ReservationResponseDTO reservation = reservationService.createReservation(request, currentUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<ReservationResponseDTO>> getMyReservations(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        List<ReservationResponseDTO> reservations = reservationService.getUserReservations(currentUser.getId());
+        return ResponseEntity.ok(reservations);
     }
 
     @GetMapping("/{id}")

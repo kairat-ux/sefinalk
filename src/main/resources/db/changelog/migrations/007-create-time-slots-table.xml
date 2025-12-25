@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="007-create-time-slots-table" author="system">
+        <createTable tableName="time_slots">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_timeslots_restaurant"
+                             references="restaurants(id)"/>
+            </column>
+            <column name="slot_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slot_time" type="TIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_tables" type="INTEGER" defaultValueNumeric="0"/>
+            <column name="is_available" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="time_slots" indexName="idx_timeslots_restaurant_date">
+            <column name="restaurant_id"/>
+            <column name="slot_date"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

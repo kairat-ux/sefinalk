@@ -31,6 +31,9 @@ public class RestaurantTable {
     @Enumerated(EnumType.STRING)
     private TableLocation location;
 
+    @Column(name = "is_available")
+    private Boolean isAvailable = true;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 

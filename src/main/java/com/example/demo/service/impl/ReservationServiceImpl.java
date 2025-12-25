@@ -131,6 +131,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private ReservationResponseDTO mapToDTO(Reservation reservation) {
+        // Combine date and time for frontend compatibility
+        LocalDateTime reservationDateTime = null;
+        if (reservation.getReservationDate() != null && reservation.getStartTime() != null) {
+            reservationDateTime = LocalDateTime.of(reservation.getReservationDate(), reservation.getStartTime());
+        }
+
         return ReservationResponseDTO.builder()
                 .id(reservation.getId())
                 .userId(reservation.getUser().getId())
@@ -143,6 +149,11 @@ public class ReservationServiceImpl implements ReservationService {
                 .status(reservation.getStatus().toString())
                 .specialRequests(reservation.getSpecialRequests())
                 .createdAt(reservation.getCreatedAt())
+                // Additional fields for frontend compatibility
+                .restaurantName(reservation.getRestaurant().getName())
+                .restaurantCity(reservation.getRestaurant().getCity())
+                .numberOfGuests(reservation.getGuestCount())
+                .reservationTime(reservationDateTime)
                 .build();
     }
 }

@@ -1,0 +1,129 @@
+.restaurants-page {
+  min-height: calc(100vh - 80px);
+  padding-bottom: var(--spacing-xxl);
+}
+
+.page-hero {
+  background: linear-gradient(135deg, var(--deep-brown) 0%, var(--warm-brown) 100%);
+  padding: var(--spacing-xxl) 0;
+  text-align: center;
+  color: white;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.page-hero h1 {
+  font-size: 3rem;
+  color: var(--gold);
+  margin-bottom: var(--spacing-sm);
+  font-weight: 700;
+}
+
+.page-hero p {
+  font-size: 1.25rem;
+  color: var(--light-gold);
+}
+
+.filters-section {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.search-box,
+.filter-box {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid transparent;
+  transition: var(--transition-normal);
+}
+
+.search-box:focus-within,
+.filter-box:focus-within {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.search-box svg,
+.filter-box svg {
+  color: var(--gold);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.search-box input,
+.filter-box select {
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  flex: 1;
+  background: transparent;
+  color: var(--charcoal);
+}
+
+.filter-box select {
+  cursor: pointer;
+}
+
+.results-info {
+  margin-bottom: var(--spacing-lg);
+}
+
+.results-info p {
+  color: var(--charcoal);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.restaurants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.no-results {
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+}
+
+.no-results h3 {
+  font-size: 2rem;
+  color: var(--deep-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.no-results p {
+  font-size: 1.125rem;
+  color: var(--charcoal);
+}
+
+@media (max-width: 768px) {
+  .page-hero h1 {
+    font-size: 2rem;
+  }
+
+  .page-hero p {
+    font-size: 1rem;
+  }
+
+  .filters-section {
+    flex-direction: column;
+  }
+
+  .search-box,
+  .filter-box {
+    min-width: 100%;
+  }
+
+  .restaurants-grid {
+    grid-template-columns: 1fr;
+  }
+}

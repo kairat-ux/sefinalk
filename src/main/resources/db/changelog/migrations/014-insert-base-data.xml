@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="014-insert-base-data" author="system">
+
+        <!-- Добавление кухонь -->
+        <insert tableName="cuisines">
+            <column name="name" value="Казахская"/>
+            <column name="description" value="Традиционная казахская кухня с бешбармаком, кuyрдаком и другими национальными блюдами"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="cuisines">
+            <column name="name" value="Узбекская"/>
+            <column name="description" value="Узбекская кухня с пловом, самсой, шурпой и лагманом"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="cuisines">
+            <column name="name" value="Европейская"/>
+            <column name="description" value="Классическая европейская кухня"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="cuisines">
+            <column name="name" value="Азиатская"/>
+            <column name="description" value="Азиатская кухня: суши, wok, лапша и другие блюда"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="cuisines">
+            <column name="name" value="Кавказская"/>
+            <column name="description" value="Кавказская кухня с шашлыком, хачапури, хинкали"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="cuisines">
+            <column name="name" value="Итальянская"/>
+            <column name="description" value="Итальянская кухня: паста, пицца, ризотто"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление администратора -->
+        <!-- Пароль: admin123 (захешированный BCrypt) -->
+        <insert tableName="users">
+            <column name="email" value="admin@restaurant.kz"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Администратор"/>
+            <column name="last_name" value="Системы"/>
+            <column name="phone" value="+77001234567"/>
+            <column name="role" value="ADMIN"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление владельцев ресторанов -->
+        <!-- Пароль: owner123 -->
+        <insert tableName="users">
+            <column name="email" value="azamat.nurlan@gmail.com"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Азамат"/>
+            <column name="last_name" value="Нурланов"/>
+            <column name="phone" value="+77011234567"/>
+            <column name="role" value="OWNER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="email" value="dana.suleimenova@gmail.com"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Дана"/>
+            <column name="last_name" value="Сулейменова"/>
+            <column name="phone" value="+77021234567"/>
+            <column name="role" value="OWNER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="email" value="murat.kairatov@gmail.com"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Мурат"/>
+            <column name="last_name" value="Кайратов"/>
+            <column name="phone" value="+77031234567"/>
+            <column name="role" value="OWNER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="email" value="aida.bekenova@gmail.com"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Аида"/>
+            <column name="last_name" value="Бекенова"/>
+            <column name="phone" value="+77041234567"/>
+            <column name="role" value="OWNER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление обычных пользователей -->
+        <!-- Пароль: user123 -->
+        <insert tableName="users">
+            <column name="email" value="timur.zhanibek@mail.ru"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Тимур"/>
+            <column name="last_name" value="Жанибеков"/>
+            <column name="phone" value="+77051234567"/>
+            <column name="role" value="USER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="email" value="aruzhan.tastanova@mail.ru"/>
+            <column name="password" value="$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"/>
+            <column name="first_name" value="Аружан"/>
+            <column name="last_name" value="Тастанова"/>
+            <column name="phone" value="+77061234567"/>
+            <column name="role" value="USER"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="is_blocked" valueBoolean="false"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление ресторанов в Алматы -->
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="2"/>
+            <column name="name" value="Dastarkhan"/>
+            <column name="description" value="Традиционная казахская кухня в современном исполнении. Уютная атмосфера и блюда по рецептам наших бабушек."/>
+            <column name="address" value="проспект Назарбаева, 123"/>
+            <column name="city" value="Алматы"/>
+            <column name="zip_code" value="050000"/>
+            <column name="phone" value="+77272501234"/>
+            <column name="email" value="info@dastarkhan.kz"/>
+            <column name="rating" valueNumeric="4.8"/>
+            <column name="total_reviews" valueNumeric="127"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="3"/>
+            <column name="name" value="Silk Road"/>
+            <column name="description" value="Ресторан узбекской кухни с аутентичными блюдами и восточным гостеприимством."/>
+            <column name="address" value="улица Абая, 45"/>
+            <column name="city" value="Алматы"/>
+            <column name="zip_code" value="050010"/>
+            <column name="phone" value="+77272502345"/>
+            <column name="email" value="contact@silkroad.kz"/>
+            <column name="rating" valueNumeric="4.6"/>
+            <column name="total_reviews" valueNumeric="98"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="4"/>
+            <column name="name" value="Bellissimo"/>
+            <column name="description" value="Итальянский ресторан с домашней пастой, пиццей из дровяной печи и избранными винами."/>
+            <column name="address" value="проспект Аль-Фараби, 77"/>
+            <column name="city" value="Алматы"/>
+            <column name="zip_code" value="050020"/>
+            <column name="phone" value="+77272503456"/>
+            <column name="email" value="reservation@bellissimo.kz"/>
+            <column name="rating" valueNumeric="4.9"/>
+            <column name="total_reviews" valueNumeric="215"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление ресторанов в Астане -->
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="5"/>
+            <column name="name" value="Baiterek Grill"/>
+            <column name="description" value="Ресторан кавказской кухни с панорамным видом на город. Свежий шашлык и традиционные блюда."/>
+            <column name="address" value="проспект Кабанбай батыра, 11"/>
+            <column name="city" value="Астана"/>
+            <column name="zip_code" value="010000"/>
+            <column name="phone" value="+77172504567"/>
+            <column name="email" value="info@baiterekgrill.kz"/>
+            <column name="rating" valueNumeric="4.7"/>
+            <column name="total_reviews" valueNumeric="143"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="2"/>
+            <column name="name" value="Tokyo Garden"/>
+            <column name="description" value="Японский ресторан с широким выбором суши, роллов и традиционных японских блюд."/>
+            <column name="address" value="улица Достык, 23"/>
+            <column name="city" value="Астана"/>
+            <column name="zip_code" value="010010"/>
+            <column name="phone" value="+77172505678"/>
+            <column name="email" value="orders@tokyogarden.kz"/>
+            <column name="rating" valueNumeric="4.5"/>
+            <column name="total_reviews" valueNumeric="87"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+        <!-- Добавление ресторанов в Шымкенте -->
+        <insert tableName="restaurants">
+            <column name="owner_id" valueNumeric="3"/>
+            <column name="name" value="Arman"/>
+            <column name="description" value="Семейный ресторан с домашней атмосферой и блюдами казахской и европейской кухни."/>
+            <column name="address" value="проспект Тауке хана, 56"/>
+            <column name="city" value="Шымкент"/>
+            <column name="zip_code" value="160000"/>
+            <column name="phone" value="+77252506789"/>
+            <column name="email" value="contact@arman.kz"/>
+            <column name="rating" valueNumeric="4.4"/>
+            <column name="total_reviews" valueNumeric="64"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="created_at" valueDate="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

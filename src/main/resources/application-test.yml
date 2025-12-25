@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kako
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  liquibase:
+    enabled: false
+
+server:
+  port: 8081
+
+app:
+  jwtSecret: TestSecretKeyThatIsAtLeast32CharactersLongForHS256
+  jwtExpirationMs: 3600000
