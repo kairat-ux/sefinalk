@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="004-create-reservations-table" author="system">
+    <changeSet id="004-create-reservations-table-v2" author="system">
         <createTable tableName="reservations">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -18,20 +18,24 @@
                 <constraints nullable="false" foreignKeyName="fk_reservations_restaurant"
                              references="restaurants(id)"/>
             </column>
-            <column name="table_id" type="BIGINT">
-                <constraints foreignKeyName="fk_reservations_table"
-                             references="restaurant_tables(id)"/>
-            </column>
-            <column name="reservation_time" type="TIMESTAMP">
+            <column name="reservation_date" type="DATE">
                 <constraints nullable="false"/>
             </column>
-            <column name="number_of_guests" type="INTEGER">
+            <column name="start_time" type="TIME">
                 <constraints nullable="false"/>
             </column>
-            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+            <column name="end_time" type="TIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_count" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="special_requests" type="TEXT"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cancelled_at" type="TIMESTAMP"/>
+            <column name="cancel_reason" type="VARCHAR(255)"/>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -46,8 +50,8 @@
         <createIndex tableName="reservations" indexName="idx_reservations_restaurant">
             <column name="restaurant_id"/>
         </createIndex>
-        <createIndex tableName="reservations" indexName="idx_reservations_time">
-            <column name="reservation_time"/>
+        <createIndex tableName="reservations" indexName="idx_reservations_date">
+            <column name="reservation_date"/>
         </createIndex>
     </changeSet>
 

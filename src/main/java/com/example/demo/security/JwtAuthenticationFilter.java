@@ -1,10 +1,13 @@
 package com.example.demo.security;
 
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -13,10 +16,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
+    private final UserRepository userRepository;
+
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, UserRepository userRepository) {
+        this.tokenProvider = tokenProvider;
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -28,12 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 Long userId = tokenProvider.getUserIdFromJWT(jwt);
 
-                UserPrincipal userPrincipal = new UserPrincipal(userId, null, null, null);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userPrincipal, null, null);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Load user from database to get role
+                User user = userRepository.findById(userId).orElse(null);
+                if (user != null) {
+                    UserPrincipal userPrincipal = UserPrincipal.create(user);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);

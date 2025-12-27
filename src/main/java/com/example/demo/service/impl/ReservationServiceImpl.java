@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
-    private final RestaurantTableRepository tableRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public ReservationResponseDTO createReservation(ReservationCreateRequestDTO request, Long userId) {
@@ -32,15 +33,9 @@ public class ReservationServiceImpl implements ReservationService {
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
                 .orElseThrow(() -> new RuntimeException("Ресторан не найден"));
 
-        RestaurantTable table = tableRepository.findByRestaurantIdAndIsActiveTrue(request.getRestaurantId())
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Нет доступных столиков в ресторане"));
-
         Reservation reservation = Reservation.builder()
                 .user(user)
                 .restaurant(restaurant)
-                .table(table)
                 .reservationDate(request.getReservationDate())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -52,6 +47,10 @@ public class ReservationServiceImpl implements ReservationService {
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
+
+        // Создаем нотификацию о подтверждении резервации
+        createConfirmationNotification(savedReservation);
+
         return mapToDTO(savedReservation);
     }
 
@@ -113,17 +112,9 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setUpdatedAt(LocalDateTime.now());
 
         reservationRepository.save(reservation);
-    }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isTableAvailable(Long tableId, LocalDate date) {
-        List<Reservation> existingReservations = reservationRepository.findByTableId(tableId).stream()
-                .filter(r -> r.getReservationDate().equals(date))
-                .filter(r -> r.getStatus() != Reservation.ReservationStatus.CANCELLED)
-                .collect(Collectors.toList());
-
-        return existingReservations.isEmpty();
+        // Создаем нотификацию об отмене резервации
+        createCancellationNotification(reservation);
     }
 
     private ReservationResponseDTO mapToDTO(Reservation reservation) {
@@ -131,7 +122,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .id(reservation.getId())
                 .userId(reservation.getUser().getId())
                 .restaurantId(reservation.getRestaurant().getId())
-                .tableId(reservation.getTable().getId())
                 .reservationDate(reservation.getReservationDate())
                 .startTime(reservation.getStartTime())
                 .endTime(reservation.getEndTime())
@@ -140,5 +130,78 @@ public class ReservationServiceImpl implements ReservationService {
                 .specialRequests(reservation.getSpecialRequests())
                 .createdAt(reservation.getCreatedAt())
                 .build();
+    }
+
+    private void createConfirmationNotification(Reservation reservation) {
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            String formattedDate = reservation.getReservationDate().format(dateFormatter);
+            String formattedTime = reservation.getStartTime().format(timeFormatter);
+
+            Notification notification = Notification.builder()
+                    .user(reservation.getUser())
+                    .restaurant(reservation.getRestaurant())
+                    .reservation(reservation)
+                    .title("Reservation Confirmed")
+                    .message(String.format(
+                            "Your reservation for %d guest%s at %s has been confirmed for %s at %s",
+                            reservation.getGuestCount(),
+                            reservation.getGuestCount() > 1 ? "s" : "",
+                            reservation.getRestaurant().getName(),
+                            formattedDate,
+                            formattedTime
+                    ))
+                    .type(Notification.NotificationType.CONFIRMATION)
+                    .isRead(false)
+                    .deliveryStatus(Notification.DeliveryStatus.SENT)
+                    .createdAt(LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            // Не прерываем процесс резервации если нотификация не отправилась
+            System.err.println("Failed to create confirmation notification: " + e.getMessage());
+        }
+    }
+
+    private void createCancellationNotification(Reservation reservation) {
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            String formattedDate = reservation.getReservationDate().format(dateFormatter);
+            String formattedTime = reservation.getStartTime().format(timeFormatter);
+
+            String message = String.format(
+                    "Your reservation at %s for %s at %s has been cancelled.",
+                    reservation.getRestaurant().getName(),
+                    formattedDate,
+                    formattedTime
+            );
+
+            if (reservation.getCancelReason() != null && !reservation.getCancelReason().isEmpty()) {
+                message += " Reason: " + reservation.getCancelReason();
+            }
+
+            Notification notification = Notification.builder()
+                    .user(reservation.getUser())
+                    .restaurant(reservation.getRestaurant())
+                    .reservation(reservation)
+                    .title("Reservation Cancelled")
+                    .message(message)
+                    .type(Notification.NotificationType.CANCELLATION)
+                    .isRead(false)
+                    .deliveryStatus(Notification.DeliveryStatus.SENT)
+                    .createdAt(LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to create cancellation notification: " + e.getMessage());
+        }
     }
 }

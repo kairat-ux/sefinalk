@@ -53,7 +53,7 @@ const OwnerDashboard = () => {
               <h1>My Restaurants</h1>
               <p>Manage your restaurant listings</p>
             </div>
-            <Link to="/owner/restaurants/new" className="btn btn-primary">
+            <Link to="/owner/restaurants/add" className="btn btn-primary">
               <FaPlus />
               Add New Restaurant
             </Link>
@@ -67,7 +67,7 @@ const OwnerDashboard = () => {
             <FaUtensils className="empty-icon" />
             <h3>No restaurants yet</h3>
             <p>Start by adding your first restaurant</p>
-            <Link to="/owner/restaurants/new" className="btn btn-primary">
+            <Link to="/owner/restaurants/add" className="btn btn-primary">
               <FaPlus />
               Add Restaurant
             </Link>

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public PaymentResponseDTO createPayment(PaymentCreateRequestDTO request, Long userId) {
@@ -84,6 +86,9 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
 
         paymentRepository.save(payment);
+
+        // Создаем нотификацию об успешной оплате
+        createPaymentCompletedNotification(payment);
     }
 
     @Override
@@ -101,6 +106,9 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
 
         paymentRepository.save(payment);
+
+        // Создаем нотификацию о возврате средств
+        createRefundNotification(payment);
     }
 
     @Override
@@ -138,5 +146,67 @@ public class PaymentServiceImpl implements PaymentService {
                 .transactionId(payment.getTransactionId())
                 .createdAt(payment.getCreatedAt())
                 .build();
+    }
+
+    private void createPaymentCompletedNotification(Payment payment) {
+        try {
+            Reservation reservation = payment.getReservation();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+            String formattedDate = reservation.getReservationDate().format(dateFormatter);
+
+            Notification notification = Notification.builder()
+                    .user(payment.getUser())
+                    .restaurant(reservation.getRestaurant())
+                    .reservation(reservation)
+                    .title("Payment Successful")
+                    .message(String.format(
+                            "Your payment of %s KZT for reservation at %s on %s has been processed successfully.",
+                            payment.getAmount(),
+                            reservation.getRestaurant().getName(),
+                            formattedDate
+                    ))
+                    .type(Notification.NotificationType.CONFIRMATION)
+                    .isRead(false)
+                    .deliveryStatus(Notification.DeliveryStatus.SENT)
+                    .createdAt(LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to create payment completed notification: " + e.getMessage());
+        }
+    }
+
+    private void createRefundNotification(Payment payment) {
+        try {
+            Reservation reservation = payment.getReservation();
+
+            String message = String.format(
+                    "Your payment of %s KZT has been refunded.",
+                    payment.getAmount()
+            );
+
+            if (payment.getRefundReason() != null && !payment.getRefundReason().isEmpty()) {
+                message += " Reason: " + payment.getRefundReason();
+            }
+
+            Notification notification = Notification.builder()
+                    .user(payment.getUser())
+                    .restaurant(reservation.getRestaurant())
+                    .reservation(reservation)
+                    .title("Payment Refunded")
+                    .message(message)
+                    .type(Notification.NotificationType.CONFIRMATION)
+                    .isRead(false)
+                    .deliveryStatus(Notification.DeliveryStatus.SENT)
+                    .createdAt(LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to create refund notification: " + e.getMessage());
+        }
     }
 }

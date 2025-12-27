@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewCreateRequestDTO {
 
-    @NotNull(message = "ID бронирования обязателен")
-    private Long reservationId;
+    @NotNull(message = "ID ресторана обязателен")
+    private Long restaurantId;
 
     @NotNull(message = "Рейтинг обязателен")
     @Min(1)

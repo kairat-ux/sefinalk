@@ -32,7 +32,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody UserRegistrationRequestDTO request) {
         UserResponseDTO user = userService.register(request);
 
-        UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getEmail(), null, null);
+        UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getEmail(), null, null, true, false);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
 
         String token = jwtTokenProvider.generateToken(authentication);

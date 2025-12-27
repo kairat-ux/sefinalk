@@ -19,9 +19,21 @@ const RestaurantDetail = () => {
         guests: 2
     });
     const [submitting, setSubmitting] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [reviewForm, setReviewForm] = useState({
+        rating: 5,
+        comment: ''
+    });
+    const [submittingReview, setSubmittingReview] = useState(false);
+    const [editingReviewId, setEditingReviewId] = useState(null);
+    const [editForm, setEditForm] = useState({
+        rating: 5,
+        comment: ''
+    });
 
     useEffect(() => {
         fetchRestaurant();
+        fetchReviews();
     }, [id]);
 
     const fetchRestaurant = async () => {
@@ -34,6 +46,146 @@ const RestaurantDetail = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const response = await fetch(`http://localhost:8008/api/reviews/restaurant/${id}`);
+            if (response.ok) {
+                const data = await response.json();
+                // Filter only approved reviews
+                setReviews(data.filter(review => review.isApproved));
+            }
+        } catch (error) {
+            console.error('Failed to load reviews:', error);
+        }
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!user) {
+            toast.info('Please login to leave a review');
+            navigate('/login');
+            return;
+        }
+
+        if (!reviewForm.comment.trim()) {
+            toast.error('Please write a comment');
+            return;
+        }
+
+        setSubmittingReview(true);
+
+        try {
+            const reviewPayload = {
+                restaurantId: parseInt(id),
+                rating: reviewForm.rating,
+                comment: reviewForm.comment
+            };
+
+            const response = await fetch('http://localhost:8008/api/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(reviewPayload)
+            });
+
+            if (response.ok) {
+                toast.success('Review submitted successfully!');
+                setReviewForm({ rating: 5, comment: '' });
+                fetchReviews();
+                fetchRestaurant();
+            } else {
+                throw new Error('Failed to submit review');
+            }
+        } catch (error) {
+            console.error('Review error:', error);
+            toast.error('Failed to submit review');
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
+    const handleEditClick = (review) => {
+        setEditingReviewId(review.id);
+        setEditForm({
+            rating: review.rating,
+            comment: review.comment
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingReviewId(null);
+        setEditForm({ rating: 5, comment: '' });
+    };
+
+    const handleUpdateReview = async (reviewId) => {
+        if (!editForm.comment.trim()) {
+            toast.error('Please write a comment');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8008/api/reviews/${reviewId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(editForm)
+            });
+
+            if (response.ok) {
+                toast.success('Review updated successfully!');
+                setEditingReviewId(null);
+                setEditForm({ rating: 5, comment: '' });
+                fetchReviews();
+                fetchRestaurant();
+            } else {
+                throw new Error('Failed to update review');
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+            toast.error('Failed to update review');
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        if (!window.confirm('Are you sure you want to delete this review?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8008/api/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (response.ok || response.status === 204) {
+                toast.success('Review deleted successfully!');
+                fetchReviews();
+                fetchRestaurant();
+            } else {
+                throw new Error('Failed to delete review');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            toast.error('Failed to delete review');
+        }
+    };
+
+    const renderStars = (rating) => {
+        return [...Array(5)].map((_, index) => (
+            <FaStar
+                key={index}
+                className={index < rating ? 'star-filled' : 'star-empty'}
+            />
+        ));
     };
 
     const handleBookingChange = (e) => {
@@ -116,7 +268,11 @@ const RestaurantDetail = () => {
                         <h1>{restaurant.name}</h1>
                         <div className="rating-badge">
                             <FaStar />
-                            <span>{restaurant.rating || '5.0'}</span>
+                            <span>
+                                {restaurant.rating && restaurant.rating > 0
+                                    ? Number(restaurant.rating).toFixed(1)
+                                    : 'New'}
+                            </span>
                             <span className="reviews">({restaurant.totalReviews || 0} reviews)</span>
                         </div>
                     </div>
@@ -170,6 +326,129 @@ const RestaurantDetail = () => {
                                     <span>Saturday - Sunday</span>
                                     <span>10:00 AM - 11:00 PM</span>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section className="detail-section">
+                            <h2>Reviews ({reviews.length})</h2>
+
+                            {user && (
+                                <div className="review-form-card">
+                                    <h3>Leave a Review</h3>
+                                    <form onSubmit={handleReviewSubmit} className="review-form">
+                                        <div className="form-group">
+                                            <label>Rating</label>
+                                            <div className="star-rating">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <FaStar
+                                                        key={star}
+                                                        className={star <= reviewForm.rating ? 'star-active' : 'star-inactive'}
+                                                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                                                        style={{ cursor: 'pointer', fontSize: '1.5rem', marginRight: '0.25rem' }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Your Review</label>
+                                            <textarea
+                                                value={reviewForm.comment}
+                                                onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                                placeholder="Share your experience..."
+                                                rows="4"
+                                                required
+                                            />
+                                        </div>
+                                        <button type="submit" className="btn btn-primary" disabled={submittingReview}>
+                                            {submittingReview ? 'Submitting...' : 'Submit Review'}
+                                        </button>
+                                    </form>
+                                </div>
+                            )}
+
+                            <div className="reviews-list">
+                                {reviews.length === 0 ? (
+                                    <p className="no-reviews">No reviews yet. Be the first to review!</p>
+                                ) : (
+                                    reviews.map((review) => (
+                                        <div key={review.id} className="review-item">
+                                            {editingReviewId === review.id ? (
+                                                <div className="review-edit-form">
+                                                    <div className="form-group">
+                                                        <label>Rating</label>
+                                                        <div className="star-rating">
+                                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                                <FaStar
+                                                                    key={star}
+                                                                    className={star <= editForm.rating ? 'star-active' : 'star-inactive'}
+                                                                    onClick={() => setEditForm({ ...editForm, rating: star })}
+                                                                    style={{ cursor: 'pointer', fontSize: '1.5rem', marginRight: '0.25rem' }}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label>Your Review</label>
+                                                        <textarea
+                                                            value={editForm.comment}
+                                                            onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                                                            placeholder="Share your experience..."
+                                                            rows="4"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="review-edit-actions">
+                                                        <button
+                                                            onClick={() => handleUpdateReview(review.id)}
+                                                            className="btn btn-primary btn-sm"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                        <button
+                                                            onClick={handleCancelEdit}
+                                                            className="btn btn-secondary btn-sm"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="review-header">
+                                                        <div className="review-rating">
+                                                            {renderStars(review.rating)}
+                                                            <span className="rating-number">{review.rating}/5</span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                            <span className="review-date">
+                                                                {new Date(review.createdAt).toLocaleDateString()}
+                                                            </span>
+                                                            {user && user.id === review.userId && (
+                                                                <div className="review-actions">
+                                                                    <button
+                                                                        onClick={() => handleEditClick(review)}
+                                                                        className="btn-icon"
+                                                                        title="Edit review"
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteReview(review.id)}
+                                                                        className="btn-icon btn-danger"
+                                                                        title="Delete review"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <p className="review-comment">{review.comment}</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </section>
                     </div>

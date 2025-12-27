@@ -5,10 +5,8 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.request.TimeSlotCreateRequestDTO;
 import com.example.demo.dto.response.TimeSlotResponseDTO;
 import com.example.demo.entity.Restaurant;
-import com.example.demo.entity.RestaurantTable;
 import com.example.demo.entity.TimeSlot;
 import com.example.demo.repository.RestaurantRepository;
-import com.example.demo.repository.RestaurantTableRepository;
 import com.example.demo.repository.TimeSlotRepository;
 import com.example.demo.service.TimeSlotService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,6 @@ public class TimeSlotServiceImpl implements TimeSlotService {
 
     private final TimeSlotRepository timeSlotRepository;
     private final RestaurantRepository restaurantRepository;
-    private final RestaurantTableRepository restaurantTableRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -58,21 +55,12 @@ public class TimeSlotServiceImpl implements TimeSlotService {
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
                 .orElseThrow(() -> new RuntimeException("Ресторан не найден"));
 
-        RestaurantTable table = restaurantTableRepository.findById(request.getTableId())
-                .orElseThrow(() -> new RuntimeException("Столик не найден"));
-
-        // Проверка что столик принадлежит ресторану
-        if (!table.getRestaurant().getId().equals(restaurant.getId())) {
-            throw new RuntimeException("Столик не принадлежит данному ресторану");
-        }
-
         TimeSlot timeSlot = TimeSlot.builder()
                 .restaurant(restaurant)
-                .table(table)
                 .slotDate(request.getDate())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .availableSeats(table.getCapacity())
+                .availableSeats(request.getAvailableSeats())
                 .isBlocked(request.getIsBlocked() != null ? request.getIsBlocked() : false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -129,12 +117,10 @@ public class TimeSlotServiceImpl implements TimeSlotService {
         return TimeSlotResponseDTO.builder()
                 .id(timeSlot.getId())
                 .restaurantId(timeSlot.getRestaurant().getId())
-                .tableId(timeSlot.getTable().getId())
-                .tableName("Table " + timeSlot.getTable().getTableNumber())
                 .date(timeSlot.getSlotDate())
                 .startTime(timeSlot.getStartTime())
                 .endTime(timeSlot.getEndTime())
-                .isAvailable(timeSlot.getAvailableSeats() > 0)
+                .availableSeats(timeSlot.getAvailableSeats())
                 .isBlocked(timeSlot.getIsBlocked())
                 .reservationId(null) // TODO: добавить связь с резервацией при необходимости
                 .createdAt(timeSlot.getCreatedAt())

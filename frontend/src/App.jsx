@@ -14,15 +14,19 @@ import Register from './pages/Register';
 import Restaurants from './pages/Restaurants';
 import RestaurantDetail from './pages/RestaurantDetail';
 import MyReservations from './pages/MyReservations';
+import MyPayments from './pages/MyPayments';
 import Profile from './pages/Profile';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UsersManagement from './pages/admin/UsersManagement';
-import RestaurantsManagement from './pages/admin/RestaurantsManagement';
+import ReviewsManagement from './pages/admin/ReviewsManagement';
+import ReservationsManagement from './pages/admin/ReservationsManagement';
 
 // Owner Pages
 import OwnerDashboard from './pages/owner/OwnerDashboard';
+import AddRestaurant from './pages/owner/AddRestaurant';
+import EditRestaurant from './pages/owner/EditRestaurant';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -71,6 +75,14 @@ function AppContent() {
               }
             />
             <Route
+              path="/my-payments"
+              element={
+                <ProtectedRoute>
+                  <MyPayments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/profile"
               element={
                 <ProtectedRoute>
@@ -97,20 +109,43 @@ function AppContent() {
               }
             />
             <Route
-              path="/admin/restaurants"
+              path="/admin/reviews"
               element={
                 <ProtectedRoute allowedRoles={['ADMIN']}>
-                  <RestaurantsManagement />
+                  <ReviewsManagement />
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/admin/reservations"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ReservationsManagement />
+                </ProtectedRoute>
+              }
+            />
             {/* Owner Routes */}
             <Route
               path="/owner/restaurants"
               element={
                 <ProtectedRoute allowedRoles={['OWNER', 'ADMIN']}>
                   <OwnerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/restaurants/add"
+              element={
+                <ProtectedRoute allowedRoles={['OWNER', 'ADMIN']}>
+                  <AddRestaurant />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/owner/restaurants/:id/edit"
+              element={
+                <ProtectedRoute allowedRoles={['OWNER', 'ADMIN']}>
+                  <EditRestaurant />
                 </ProtectedRoute>
               }
             />

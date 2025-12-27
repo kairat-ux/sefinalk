@@ -14,7 +14,6 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findByUserId(Long userId);
     List<Reservation> findByRestaurantId(Long restaurantId);
-    List<Reservation> findByTableId(Long tableId);
 
     @Query("SELECT r FROM Reservation r WHERE r.restaurant.id = :restaurantId AND r.reservationDate = :date")
     List<Reservation> findByRestaurantAndDate(Long restaurantId, LocalDate date);

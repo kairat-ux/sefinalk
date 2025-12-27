@@ -1,7 +1,8 @@
     import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaCalendarAlt, FaClock, FaUsers, FaMapMarkerAlt, FaCheckCircle, FaHourglassHalf, FaTimesCircle } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUsers, FaMapMarkerAlt, FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaMoneyBillWave } from 'react-icons/fa';
 import { reservationService } from '../services/reservationService';
+import { paymentService } from '../services/paymentService';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import './MyReservations.css';
@@ -10,9 +11,12 @@ const MyReservations = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [payments, setPayments] = useState({});
+  const [payingReservation, setPayingReservation] = useState(null);
 
   useEffect(() => {
     fetchReservations();
+    fetchPayments();
   }, []);
 
   const fetchReservations = async () => {
@@ -23,6 +27,51 @@ const MyReservations = () => {
       toast.error('Failed to load reservations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.id) {
+        const response = await paymentService.getUserPayments(user.id);
+        const paymentMap = {};
+        response.data.forEach(payment => {
+          paymentMap[payment.reservationId] = payment;
+        });
+        setPayments(paymentMap);
+      }
+    } catch (error) {
+      console.error('Failed to load payments:', error);
+    }
+  };
+
+  const handlePayNow = async (reservation) => {
+    if (!window.confirm(`Оплатить резервацию на сумму 5000 KZT?`)) {
+      return;
+    }
+
+    setPayingReservation(reservation.id);
+    try {
+      const paymentData = {
+        reservationId: reservation.id,
+        amount: 5000.00,
+        paymentMethod: 'CARD'
+      };
+
+      const response = await paymentService.createPayment(paymentData);
+      toast.success('Оплата создана успешно!');
+
+      // Auto-complete the payment
+      await paymentService.completePayment(response.data.id);
+      toast.success('Оплата завершена!');
+
+      fetchPayments();
+    } catch (error) {
+      toast.error('Ошибка при оплате');
+      console.error('Payment error:', error);
+    } finally {
+      setPayingReservation(null);
     }
   };
 
@@ -179,6 +228,22 @@ const MyReservations = () => {
                   >
                     View Restaurant
                   </Link>
+
+                  {reservation.status?.toLowerCase() === 'confirmed' && !payments[reservation.id] && (
+                    <button
+                      onClick={() => handlePayNow(reservation)}
+                      className="btn btn-primary"
+                      disabled={payingReservation === reservation.id}
+                    >
+                      <FaMoneyBillWave /> {payingReservation === reservation.id ? 'Processing...' : 'Pay Now (5000 KZT)'}
+                    </button>
+                  )}
+
+                  {payments[reservation.id]?.status === 'COMPLETED' && (
+                    <span className="payment-badge paid">
+                      <FaCheckCircle /> Paid
+                    </span>
+                  )}
 
                   {reservation.status?.toLowerCase() !== 'cancelled' && (
                     <button

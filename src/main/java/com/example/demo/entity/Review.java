@@ -24,7 +24,7 @@ public class Review {
     private Restaurant restaurant;
 
     @OneToOne
-    @JoinColumn(name = "reservation_id", nullable = false)
+    @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
     @Column(nullable = false)

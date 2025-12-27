@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUsers, FaUtensils, FaCalendarCheck, FaChartLine } from 'react-icons/fa';
+import { FaUsers, FaUtensils, FaCalendarCheck, FaChartLine, FaStar } from 'react-icons/fa';
 import { adminService } from '../../services/adminService';
 import { toast } from 'react-toastify';
 import './AdminDashboard.css';
@@ -8,7 +8,9 @@ import './AdminDashboard.css';
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     usersCount: 0,
-    restaurantsCount: 0
+    restaurantsCount: 0,
+    activeReservations: 0,
+    totalReservations: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -18,17 +20,27 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [usersResponse, restaurantsResponse] = await Promise.all([
+      const [usersResponse, restaurantsResponse, reservationsResponse] = await Promise.all([
         adminService.getUsersCount(),
-        adminService.getRestaurantsCount()
+        adminService.getRestaurantsCount(),
+        adminService.getAllReservations()
       ]);
+
+      const reservations = reservationsResponse.data;
+      const totalReservations = reservations.length;
+      const activeReservations = reservations.filter(r =>
+        r.status === 'CONFIRMED' || r.status === 'PENDING'
+      ).length;
 
       setStats({
         usersCount: usersResponse.data,
-        restaurantsCount: restaurantsResponse.data
+        restaurantsCount: restaurantsResponse.data,
+        activeReservations,
+        totalReservations
       });
     } catch (error) {
       toast.error('Failed to load statistics');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -42,22 +54,16 @@ const AdminDashboard = () => {
       color: '#3b82f6'
     },
     {
-      title: 'Manage Restaurants',
-      icon: <FaUtensils />,
-      link: '/admin/restaurants',
-      color: '#10b981'
-    },
-    {
       title: 'View Reservations',
       icon: <FaCalendarCheck />,
       link: '/admin/reservations',
       color: '#f59e0b'
     },
     {
-      title: 'Analytics',
-      icon: <FaChartLine />,
-      link: '/admin/analytics',
-      color: '#8b5cf6'
+      title: 'Manage Reviews',
+      icon: <FaStar />,
+      link: '/admin/reviews',
+      color: '#ec4899'
     }
   ];
 
@@ -105,7 +111,7 @@ const AdminDashboard = () => {
               <FaCalendarCheck />
             </div>
             <div className="stat-content">
-              <h3>--</h3>
+              <h3>{stats.activeReservations}</h3>
               <p>Active Reservations</p>
             </div>
           </div>
@@ -115,8 +121,8 @@ const AdminDashboard = () => {
               <FaChartLine />
             </div>
             <div className="stat-content">
-              <h3>--</h3>
-              <p>Monthly Revenue</p>
+              <h3>{stats.totalReservations}</h3>
+              <p>Total Reservations</p>
             </div>
           </div>
         </div>

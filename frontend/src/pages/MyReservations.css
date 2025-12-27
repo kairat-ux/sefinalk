@@ -217,6 +217,26 @@
   color: white;
 }
 
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.payment-badge.paid {
+  background: #dcfce7;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+}
+
+.payment-badge svg {
+  font-size: 1.2rem;
+}
+
 @media (max-width: 768px) {
   .reservation-header {
     flex-direction: column;

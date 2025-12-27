@@ -5,7 +5,7 @@ spring:
     name: restaurant-booking
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/kako
+    url: jdbc:postgresql://localhost:5432/sefinal
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver

@@ -1,12 +1,9 @@
-// ПУТЬ: src/main/java/com/example/demo/service/impl/NotificationServiceImpl.java
-
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.Notification;
-import com.example.demo.entity.Reservation;
-import com.example.demo.entity.User;
-import com.example.demo.repository.NotificationRepository;
-import com.example.demo.repository.ReservationRepository;
+import com.example.demo.dto.request.NotificationCreateRequestDTO;
+import com.example.demo.dto.response.NotificationResponseDTO;
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,117 +19,106 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
     private final ReservationRepository reservationRepository;
 
     @Override
-    public void sendReservationConfirmation(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
+    public NotificationResponseDTO createNotification(NotificationCreateRequestDTO request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Restaurant restaurant = null;
+        if (request.getRestaurantId() != null) {
+            restaurant = restaurantRepository.findById(request.getRestaurantId())
+                    .orElse(null);
+        }
+
+        Reservation reservation = null;
+        if (request.getReservationId() != null) {
+            reservation = reservationRepository.findById(request.getReservationId())
+                    .orElse(null);
+        }
 
         Notification notification = Notification.builder()
-                .user(reservation.getUser())
-                .restaurant(reservation.getRestaurant())
+                .user(user)
+                .restaurant(restaurant)
                 .reservation(reservation)
-                .message("Ваше бронирование в ресторане " + reservation.getRestaurant().getName() +
-                        " подтверждено на " + reservation.getReservationDate() + " в " + reservation.getStartTime())
-                .type(Notification.NotificationType.CONFIRMATION)
+                .title(request.getTitle())
+                .message(request.getMessage())
+                .type(request.getType())
                 .isRead(false)
                 .deliveryStatus(Notification.DeliveryStatus.SENT)
                 .createdAt(LocalDateTime.now())
                 .sentAt(LocalDateTime.now())
                 .build();
 
-        notificationRepository.save(notification);
-    }
-
-    @Override
-    public void sendReservationReminder(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
-
-        Notification notification = Notification.builder()
-                .user(reservation.getUser())
-                .restaurant(reservation.getRestaurant())
-                .reservation(reservation)
-                .message("Напоминаем, что у вас бронирование в ресторане " +
-                        reservation.getRestaurant().getName() + " сегодня в " + reservation.getStartTime())
-                .type(Notification.NotificationType.REMINDER)
-                .isRead(false)
-                .deliveryStatus(Notification.DeliveryStatus.SENT)
-                .createdAt(LocalDateTime.now())
-                .sentAt(LocalDateTime.now())
-                .build();
-
-        notificationRepository.save(notification);
-    }
-
-    @Override
-    public void sendCancellationNotification(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
-
-        Notification notification = Notification.builder()
-                .user(reservation.getUser())
-                .restaurant(reservation.getRestaurant())
-                .reservation(reservation)
-                .message("Ваше бронирование в ресторане " + reservation.getRestaurant().getName() +
-                        " отменено. Причина: " + reservation.getCancelReason())
-                .type(Notification.NotificationType.CANCELLATION)
-                .isRead(false)
-                .deliveryStatus(Notification.DeliveryStatus.SENT)
-                .createdAt(LocalDateTime.now())
-                .sentAt(LocalDateTime.now())
-                .build();
-
-        notificationRepository.save(notification);
-    }
-
-    @Override
-    public void sendReviewRequest(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
-
-        Notification notification = Notification.builder()
-                .user(reservation.getUser())
-                .restaurant(reservation.getRestaurant())
-                .reservation(reservation)
-                .message("Спасибо за визит в " + reservation.getRestaurant().getName() +
-                        "! Оставьте отзыв о вашем опыте")
-                .type(Notification.NotificationType.REVIEW_REQUEST)
-                .isRead(false)
-                .deliveryStatus(Notification.DeliveryStatus.SENT)
-                .createdAt(LocalDateTime.now())
-                .sentAt(LocalDateTime.now())
-                .build();
-
-        notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+        return mapToDTO(savedNotification);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Notification> getUserNotifications(Long userId) {
-        return notificationRepository.findByUserId(userId);
+    public NotificationResponseDTO getNotificationById(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        return mapToDTO(notification);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Notification> getUnreadNotifications(Long userId) {
-        return notificationRepository.findByUserIdAndIsReadFalse(userId);
+    public List<NotificationResponseDTO> getUserNotifications(Long userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void markAsRead(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Уведомление не найдено"));
+    @Transactional(readOnly = true)
+    public List<NotificationResponseDTO> getUnreadNotifications(Long userId) {
+        return notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void markAsRead(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
 
         notification.setIsRead(true);
         notification.setDeliveryStatus(Notification.DeliveryStatus.READ);
-
         notificationRepository.save(notification);
     }
 
     @Override
-    public void deleteNotification(Long notificationId) {
-        notificationRepository.deleteById(notificationId);
+    public void markAllAsRead(Long userId) {
+        List<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId);
+        for (Notification notification : notifications) {
+            notification.setIsRead(true);
+            notification.setDeliveryStatus(Notification.DeliveryStatus.READ);
+        }
+        notificationRepository.saveAll(notifications);
+    }
+
+    @Override
+    public void deleteNotification(Long id) {
+        notificationRepository.deleteById(id);
+    }
+
+    private NotificationResponseDTO mapToDTO(Notification notification) {
+        return NotificationResponseDTO.builder()
+                .id(notification.getId())
+                .userId(notification.getUser().getId())
+                .restaurantId(notification.getRestaurant() != null ? notification.getRestaurant().getId() : null)
+                .reservationId(notification.getReservation() != null ? notification.getReservation().getId() : null)
+                .title(notification.getTitle())
+                .message(notification.getMessage())
+                .type(notification.getType().toString())
+                .isRead(notification.getIsRead())
+                .deliveryStatus(notification.getDeliveryStatus().toString())
+                .createdAt(notification.getCreatedAt())
+                .sentAt(notification.getSentAt())
+                .build();
     }
 }

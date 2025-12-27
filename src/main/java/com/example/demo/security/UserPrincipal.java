@@ -18,6 +18,8 @@ public class UserPrincipal implements UserDetails {
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
+    private Boolean isActive;
+    private Boolean isBlocked;
 
     public static UserPrincipal create(User user) {
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().toString());
@@ -26,7 +28,9 @@ public class UserPrincipal implements UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(authority)
+                Collections.singletonList(authority),
+                user.getIsActive(),
+                user.getIsBlocked()
         );
     }
 
@@ -52,7 +56,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isBlocked;
     }
 
     @Override
@@ -62,6 +66,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isActive;
     }
 }

@@ -19,7 +19,6 @@ public class ReservationResponseDTO {
     private Long id;
     private Long userId;
     private Long restaurantId;
-    private Long tableId;
     private LocalDate reservationDate;
     private LocalTime startTime;
     private LocalTime endTime;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaCalendarAlt, FaSignOutAlt, FaBars, FaTimes, FaUserShield, FaUtensils } from 'react-icons/fa';
+import { FaUserCircle, FaCalendarAlt, FaSignOutAlt, FaBars, FaTimes, FaUserShield, FaUtensils, FaCalendarCheck, FaStar, FaChartLine, FaMoneyBillWave } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import NotificationDropdown from './NotificationDropdown';
 import './Header.css';
 
 const Header = () => {
@@ -41,6 +42,8 @@ const Header = () => {
             Contact
           </Link>
 
+          {user && <NotificationDropdown />}
+
           {user ? (
             <div className="user-menu">
               <button className="user-menu-btn">
@@ -55,6 +58,9 @@ const Header = () => {
                 <Link to="/my-reservations" className="dropdown-item" onClick={() => setMenuOpen(false)}>
                   <FaCalendarAlt /> My Reservations
                 </Link>
+                <Link to="/my-payments" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                  <FaMoneyBillWave /> My Payments
+                </Link>
 
                 {/* Admin Link */}
                 {user.role === 'ADMIN' && (
@@ -66,8 +72,11 @@ const Header = () => {
                     <Link to="/admin/users" className="dropdown-item" onClick={() => setMenuOpen(false)}>
                       <FaUserCircle /> Manage Users
                     </Link>
-                    <Link to="/admin/restaurants" className="dropdown-item" onClick={() => setMenuOpen(false)}>
-                      <FaUtensils /> Manage Restaurants
+                    <Link to="/admin/reservations" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                      <FaCalendarCheck /> Reservations
+                    </Link>
+                    <Link to="/admin/reviews" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                      <FaStar /> Reviews
                     </Link>
                   </>
                 )}

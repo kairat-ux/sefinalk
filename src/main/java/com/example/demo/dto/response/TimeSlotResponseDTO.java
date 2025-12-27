@@ -16,12 +16,10 @@ import java.time.LocalTime;
 public class TimeSlotResponseDTO {
     private Long id;
     private Long restaurantId;
-    private Long tableId;
-    private String tableName;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Boolean isAvailable;
+    private Integer availableSeats;
     private Boolean isBlocked;
     private Long reservationId;
     private LocalDateTime createdAt;

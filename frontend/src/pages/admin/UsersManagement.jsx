@@ -22,11 +22,19 @@ const UsersManagement = () => {
 
   const fetchUsers = async () => {
     try {
+      console.log('Fetching users...');
       const response = await adminService.getAllUsers();
+      console.log('Users response:', response.data);
       setUsers(response.data);
       setFilteredUsers(response.data);
     } catch (error) {
-      toast.error('Failed to load users');
+      console.error('Error fetching users:', error);
+      console.error('Error response:', error.response);
+      if (error.response?.status === 403) {
+        toast.error('Access denied. You need ADMIN role to view users.');
+      } else {
+        toast.error('Failed to load users: ' + (error.response?.data?.message || error.message));
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +89,16 @@ const UsersManagement = () => {
       fetchUsers();
     } catch (error) {
       toast.error('Failed to delete user');
+    }
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await adminService.updateUserRole(userId, newRole);
+      toast.success('User role updated successfully');
+      fetchUsers();
+    } catch (error) {
+      toast.error('Failed to update user role');
     }
   };
 
@@ -156,13 +174,19 @@ const UsersManagement = () => {
                   <td>{user.email}</td>
                   <td>{user.phone || 'N/A'}</td>
                   <td>
-                    <span className={`role-badge ${user.role?.toLowerCase()}`}>
-                      {user.role}
-                    </span>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      className={`role-select ${user.role?.toLowerCase()}`}
+                    >
+                      <option value="USER">USER</option>
+                      <option value="OWNER">OWNER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
                   </td>
                   <td>
-                    <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
+                    <span className={`status-badge ${!user.isActive ? 'inactive' : user.isBlocked ? 'blocked' : 'active'}`}>
+                      {!user.isActive ? 'Deleted' : user.isBlocked ? 'Blocked' : 'Active'}
                     </span>
                   </td>
                   <td>
@@ -170,15 +194,7 @@ const UsersManagement = () => {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      {user.isActive ? (
-                        <button
-                          onClick={() => handleBlockUser(user.id)}
-                          className="action-btn block-btn"
-                          title="Block User"
-                        >
-                          <FaUserTimes />
-                        </button>
-                      ) : (
+                      {user.isBlocked ? (
                         <button
                           onClick={() => handleUnblockUser(user.id)}
                           className="action-btn unblock-btn"
@@ -186,11 +202,20 @@ const UsersManagement = () => {
                         >
                           <FaUserCheck />
                         </button>
+                      ) : (
+                        <button
+                          onClick={() => handleBlockUser(user.id)}
+                          className="action-btn block-btn"
+                          title="Block User"
+                        >
+                          <FaUserTimes />
+                        </button>
                       )}
                       <button
                         onClick={() => handleDeleteUser(user.id)}
                         className="action-btn delete-btn"
                         title="Delete User"
+                        disabled={!user.isActive}
                       >
                         <FaTrash />
                       </button>

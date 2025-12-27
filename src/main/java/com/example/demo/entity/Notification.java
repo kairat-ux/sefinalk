@@ -27,6 +27,9 @@ public class Notification {
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
+    @Column(nullable = false)
+    private String title;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 

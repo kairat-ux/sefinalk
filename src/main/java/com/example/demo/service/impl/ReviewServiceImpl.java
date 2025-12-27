@@ -3,6 +3,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.ReviewCreateRequestDTO;
+import com.example.demo.dto.request.ReviewUpdateRequestDTO;
 import com.example.demo.dto.response.ReviewResponseDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
@@ -25,28 +26,23 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final ReservationRepository reservationRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public ReviewResponseDTO createReview(ReviewCreateRequestDTO request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-        Reservation reservation = reservationRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
-
-        if (reservation.getStatus() != Reservation.ReservationStatus.COMPLETED) {
-            throw new RuntimeException("Отзыв можно оставить только после завершения бронирования");
-        }
-
-        Restaurant restaurant = reservation.getRestaurant();
+        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
+                .orElseThrow(() -> new RuntimeException("Ресторан не найден"));
 
         Review review = Review.builder()
                 .user(user)
                 .restaurant(restaurant)
-                .reservation(reservation)
+                .reservation(null)
                 .rating(request.getRating())
                 .comment(request.getComment())
-                .isApproved(false)
+                .isApproved(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -54,7 +50,29 @@ public class ReviewServiceImpl implements ReviewService {
         Review savedReview = reviewRepository.save(review);
         updateRestaurantRating(restaurant.getId());
 
+        // Создаем нотификацию владельцу ресторана о новом отзыве
+        createNewReviewNotification(savedReview);
+
         return mapToDTO(savedReview);
+    }
+
+    @Override
+    public ReviewResponseDTO updateReview(Long id, ReviewUpdateRequestDTO request, Long userId) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Отзыв не найден"));
+
+        if (!review.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Вы можете редактировать только свои отзывы");
+        }
+
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+        review.setUpdatedAt(LocalDateTime.now());
+
+        Review updatedReview = reviewRepository.save(review);
+        updateRestaurantRating(review.getRestaurant().getId());
+
+        return mapToDTO(updatedReview);
     }
 
     @Override
@@ -83,6 +101,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ReviewResponseDTO> getAllReviews() {
+        return reviewRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ReviewResponseDTO> getPendingReviews() {
         return reviewRepository.findByIsApprovedFalse().stream()
                 .map(this::mapToDTO)
@@ -96,6 +122,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setIsApproved(true);
         review.setUpdatedAt(LocalDateTime.now());
         reviewRepository.save(review);
+        updateRestaurantRating(review.getRestaurant().getId());
     }
 
     @Override
@@ -105,11 +132,16 @@ public class ReviewServiceImpl implements ReviewService {
         review.setIsApproved(false);
         review.setUpdatedAt(LocalDateTime.now());
         reviewRepository.save(review);
+        updateRestaurantRating(review.getRestaurant().getId());
     }
 
     @Override
     public void deleteReview(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Отзыв не найден"));
+        Long restaurantId = review.getRestaurant().getId();
         reviewRepository.deleteById(id);
+        updateRestaurantRating(restaurantId);
     }
 
     private void updateRestaurantRating(Long restaurantId) {
@@ -139,12 +171,47 @@ public class ReviewServiceImpl implements ReviewService {
         restaurantRepository.save(restaurant);
     }
 
+    private void createNewReviewNotification(Review review) {
+        try {
+            Restaurant restaurant = review.getRestaurant();
+            User owner = restaurant.getOwner();
+
+            String stars = "⭐".repeat(review.getRating());
+
+            Notification notification = Notification.builder()
+                    .user(owner)
+                    .restaurant(restaurant)
+                    .reservation(review.getReservation())
+                    .title("New Review Received")
+                    .message(String.format(
+                            "%s left a %d-star review (%s) for %s: \"%s\"",
+                            review.getUser().getFirstName() + " " + review.getUser().getLastName(),
+                            review.getRating(),
+                            stars,
+                            restaurant.getName(),
+                            review.getComment() != null && review.getComment().length() > 100
+                                ? review.getComment().substring(0, 97) + "..."
+                                : review.getComment()
+                    ))
+                    .type(Notification.NotificationType.REVIEW_REQUEST)
+                    .isRead(false)
+                    .deliveryStatus(Notification.DeliveryStatus.SENT)
+                    .createdAt(LocalDateTime.now())
+                    .sentAt(LocalDateTime.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to create new review notification: " + e.getMessage());
+        }
+    }
+
     private ReviewResponseDTO mapToDTO(Review review) {
         return ReviewResponseDTO.builder()
                 .id(review.getId())
                 .userId(review.getUser().getId())
                 .restaurantId(review.getRestaurant().getId())
-                .reservationId(review.getReservation().getId())
+                .reservationId(review.getReservation() != null ? review.getReservation().getId() : null)
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .isApproved(review.getIsApproved())

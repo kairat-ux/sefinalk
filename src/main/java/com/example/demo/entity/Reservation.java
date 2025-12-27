@@ -25,10 +25,6 @@ public class Reservation {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @ManyToOne
-    @JoinColumn(name = "table_id", nullable = false)
-    private RestaurantTable table;
-
     @Column(name = "reservation_date", nullable = false)
     private LocalDate reservationDate;
 

@@ -15,5 +15,4 @@ public interface ReservationService {
     List<ReservationResponseDTO> getReservationsByDate(Long restaurantId, LocalDate date);
     void updateReservation(Long id, ReservationCreateRequestDTO request);
     void cancelReservation(Long id, String reason);
-    boolean isTableAvailable(Long tableId, LocalDate date);
 }

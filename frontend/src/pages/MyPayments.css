@@ -1,0 +1,149 @@
+.my-payments {
+  min-height: calc(100vh - 80px);
+  padding-bottom: var(--spacing-xxl);
+  background: var(--soft-gray);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: var(--gold);
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state h2 {
+  color: var(--deep-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+  color: var(--charcoal);
+}
+
+.payments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.payment-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  transition: var(--transition-normal);
+  border-left: 4px solid var(--gold);
+}
+
+.payment-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.payment-card.status-completed {
+  border-left-color: #10b981;
+}
+
+.payment-card.status-pending {
+  border-left-color: #f59e0b;
+}
+
+.payment-card.status-failed {
+  border-left-color: #ef4444;
+}
+
+.payment-card.status-refunded {
+  border-left-color: #3b82f6;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--soft-gray);
+}
+
+.payment-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-icon {
+  font-size: 1.25rem;
+}
+
+.status-icon.success {
+  color: #10b981;
+}
+
+.status-icon.warning {
+  color: #f59e0b;
+}
+
+.status-icon.error {
+  color: #ef4444;
+}
+
+.status-icon.info {
+  color: #3b82f6;
+}
+
+.status-label {
+  font-weight: 600;
+  color: var(--deep-brown);
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.payment-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.payment-row .label {
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+.payment-row .value {
+  color: var(--deep-brown);
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .payments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}

@@ -1,8 +1,8 @@
+// ПУТЬ: src/main/java/com/example/demo/dto/request/ReviewUpdateRequestDTO.java
+
 package com.example.demo.dto.request;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +15,10 @@ import lombok.NoArgsConstructor;
 public class ReviewUpdateRequestDTO {
 
     @NotNull(message = "Рейтинг обязателен")
-    @Min(value = 1, message = "Минимальный рейтинг 1")
-    @Max(value = 5, message = "Максимальный рейтинг 5")
+    @Min(1)
+    @Max(5)
     private Integer rating;
 
+    @Size(max = 1000, message = "Комментарий не может быть больше 1000 символов")
     private String comment;
 }

@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtAuthenticationFilter;
 import com.example.demo.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,7 +37,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenProvider);
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenProvider, userRepository);
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -45,12 +47,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/restaurants").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/restaurants").authenticated()
                         .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/payments/**").authenticated()
-                        .requestMatchers("/api/reviews").authenticated()
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users/create").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/block").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/unblock").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/change-password").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 );

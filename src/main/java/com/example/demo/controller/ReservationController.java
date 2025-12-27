@@ -79,12 +79,4 @@ public class ReservationController {
         reservationService.cancelReservation(id, reason != null ? reason : "Отмена пользователем");
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/{tableId}/available/{date}")
-    public ResponseEntity<Boolean> isTableAvailable(@PathVariable Long tableId,
-                                                    @PathVariable String date) {
-        LocalDate localDate = LocalDate.parse(date);
-        boolean available = reservationService.isTableAvailable(tableId, localDate);
-        return ResponseEntity.ok(available);
-    }
 }

@@ -18,9 +18,6 @@ public class TimeSlotCreateRequestDTO {
     @NotNull(message = "ID ресторана обязателен")
     private Long restaurantId;
 
-    @NotNull(message = "ID столика обязателен")
-    private Long tableId;
-
     @NotNull(message = "Дата обязательна")
     private LocalDate date;
 
@@ -29,6 +26,9 @@ public class TimeSlotCreateRequestDTO {
 
     @NotNull(message = "Время окончания обязательно")
     private LocalTime endTime;
+
+    @NotNull(message = "Количество доступных мест обязательно")
+    private Integer availableSeats;
 
     private Boolean isBlocked;
 }

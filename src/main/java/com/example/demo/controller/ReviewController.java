@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.ReviewCreateRequestDTO;
+import com.example.demo.dto.request.ReviewUpdateRequestDTO;
 import com.example.demo.dto.response.ReviewResponseDTO;
 import com.example.demo.security.UserPrincipal;
 import com.example.demo.service.ReviewService;
@@ -38,6 +39,15 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(review);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewResponseDTO> updateReview(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewUpdateRequestDTO request) {
+        Long userId = getCurrentUserId();
+        ReviewResponseDTO review = reviewService.updateReview(id, request, userId);
+        return ResponseEntity.ok(review);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponseDTO> getReviewById(@PathVariable Long id) {
         ReviewResponseDTO review = reviewService.getReviewById(id);
@@ -53,6 +63,12 @@ public class ReviewController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ReviewResponseDTO>> getUserReviews(@PathVariable Long userId) {
         List<ReviewResponseDTO> reviews = reviewService.getUserReviews(userId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReviewResponseDTO>> getAllReviews() {
+        List<ReviewResponseDTO> reviews = reviewService.getAllReviews();
         return ResponseEntity.ok(reviews);
     }
 
