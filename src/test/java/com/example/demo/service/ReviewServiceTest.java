@@ -46,7 +46,6 @@ class ReviewServiceTest {
     private ReviewCreateRequestDTO reviewDTO;
     private User user;
     private Restaurant restaurant;
-    private RestaurantTable table;
     private Reservation reservation;
     private Review review;
 
@@ -73,20 +72,11 @@ class ReviewServiceTest {
                 .isActive(true)
                 .build();
 
-        table = RestaurantTable.builder()
-                .id(1L)
-                .restaurant(restaurant)
-                .tableNumber(1)
-                .capacity(4)
-                .location(RestaurantTable.TableLocation.CENTER)
-                .isActive(true)
-                .build();
 
         reservation = Reservation.builder()
                 .id(1L)
                 .user(user)
                 .restaurant(restaurant)
-                .table(table)
                 .reservationDate(LocalDate.now().minusDays(1))
                 .startTime(LocalTime.of(19, 0, 0))
                 .endTime(LocalTime.of(21, 0, 0))
@@ -97,7 +87,6 @@ class ReviewServiceTest {
                 .build();
 
         reviewDTO = ReviewCreateRequestDTO.builder()
-                .reservationId(1L)
                 .rating(5)
                 .comment("Excellent service and delicious food!")
                 .build();

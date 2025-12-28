@@ -1,4 +1,4 @@
-// ПУТЬ: src/main/java/com/example/demo/dto/request/ChangePasswordRequestDTO.java
+
 
 package com.example.demo.dto.request;
 

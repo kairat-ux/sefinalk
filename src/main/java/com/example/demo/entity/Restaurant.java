@@ -1,4 +1,4 @@
-// ПУТЬ: src/main/java/com/example/demo/entity/Restaurant.java
+
 
 package com.example.demo.entity;
 

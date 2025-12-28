@@ -1,4 +1,4 @@
-// ПУТЬ: src/main/java/com/example/demo/dto/response/ReviewResponseDTO.java
+
 
 package com.example.demo.dto.response;
 

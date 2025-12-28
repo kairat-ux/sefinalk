@@ -36,16 +36,12 @@ class ReservationServiceTest {
     @Mock
     private RestaurantRepository restaurantRepository;
 
-    @Mock
-    private RestaurantTableRepository tableRepository;
-
     @InjectMocks
     private ReservationServiceImpl reservationService;
 
     private ReservationCreateRequestDTO reservationDTO;
     private User user;
     private Restaurant restaurant;
-    private RestaurantTable table;
     private Reservation reservation;
 
     @BeforeEach
@@ -69,15 +65,6 @@ class ReservationServiceTest {
                 .isActive(true)
                 .build();
 
-        table = RestaurantTable.builder()
-                .id(1L)
-                .restaurant(restaurant)
-                .tableNumber(1)
-                .capacity(4)
-                .location(RestaurantTable.TableLocation.CENTER)
-                .isActive(true)
-                .build();
-
         reservationDTO = ReservationCreateRequestDTO.builder()
                 .restaurantId(1L)
                 .reservationDate(LocalDate.now().plusDays(2))
@@ -91,7 +78,6 @@ class ReservationServiceTest {
                 .id(1L)
                 .user(user)
                 .restaurant(restaurant)
-                .table(table)
                 .reservationDate(reservationDTO.getReservationDate())
                 .startTime(reservationDTO.getStartTime())
                 .endTime(reservationDTO.getEndTime())
@@ -107,8 +93,6 @@ class ReservationServiceTest {
     void testCreateReservation_Success() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(restaurantRepository.findById(anyLong())).thenReturn(Optional.of(restaurant));
-        when(tableRepository.findByRestaurantIdAndIsActiveTrue(anyLong()))
-                .thenReturn(Arrays.asList(table));
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
 
         ReservationResponseDTO result = reservationService.createReservation(reservationDTO, 1L);
@@ -173,7 +157,6 @@ class ReservationServiceTest {
                 .id(2L)
                 .user(user)
                 .restaurant(restaurant)
-                .table(table)
                 .reservationDate(LocalDate.now().plusDays(3))
                 .startTime(LocalTime.of(20, 0, 0))
                 .status(Reservation.ReservationStatus.CONFIRMED)
@@ -217,39 +200,8 @@ class ReservationServiceTest {
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
 
-    @Test
-    void testIsTableAvailable_Available() {
-        when(reservationRepository.findByTableId(1L))
-                .thenReturn(Arrays.asList());
 
-        boolean result = reservationService.isTableAvailable(1L, LocalDate.now().plusDays(2));
 
-        assertTrue(result);
-
-        verify(reservationRepository, times(1)).findByTableId(1L);
-    }
-
-    @Test
-    void testIsTableAvailable_NotAvailable() {
-        LocalDate targetDate = LocalDate.now().plusDays(2);
-        Reservation existingReservation = Reservation.builder()
-                .id(1L)
-                .user(user)
-                .restaurant(restaurant)
-                .table(table)
-                .reservationDate(targetDate)
-                .status(Reservation.ReservationStatus.CONFIRMED)
-                .build();
-
-        when(reservationRepository.findByTableId(1L))
-                .thenReturn(Arrays.asList(existingReservation));
-
-        boolean result = reservationService.isTableAvailable(1L, targetDate);
-
-        assertFalse(result);
-
-        verify(reservationRepository, times(1)).findByTableId(1L);
-    }
 
     @Test
     void testUpdateReservation_Success() {

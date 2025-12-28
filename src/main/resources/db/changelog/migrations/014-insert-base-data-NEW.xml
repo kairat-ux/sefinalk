@@ -5,9 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- No initial data - users and restaurants should be created through the UI -->
     <changeSet id="014-insert-all-data-v4" author="system">
-        <!-- This changeset is empty - all data will be created through the application UI -->
     </changeSet>
 
 </databaseChangeLog>
