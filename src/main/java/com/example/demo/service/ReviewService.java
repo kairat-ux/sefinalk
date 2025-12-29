@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/service/ReviewService.java
-
 package com.example.demo.service;
 
 import com.example.demo.dto.request.ReviewCreateRequestDTO;

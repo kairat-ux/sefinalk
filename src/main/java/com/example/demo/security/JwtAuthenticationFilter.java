@@ -36,7 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 Long userId = tokenProvider.getUserIdFromJWT(jwt);
 
-                // Load user from database to get role
                 User user = userRepository.findById(userId).orElse(null);
                 if (user != null) {
                     UserPrincipal userPrincipal = UserPrincipal.create(user);

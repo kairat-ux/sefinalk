@@ -21,5 +21,4 @@ public class RestaurantListResponseDTO {
     private String email;
     private BigDecimal rating;
     private Integer totalReviews;
-    private Boolean isActive;
 }

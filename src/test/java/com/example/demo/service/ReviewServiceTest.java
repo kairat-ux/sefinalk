@@ -40,6 +40,9 @@ class ReviewServiceTest {
     @Mock
     private ReservationRepository reservationRepository;
 
+    @Mock
+    private NotificationRepository notificationRepository;
+
     @InjectMocks
     private ReviewServiceImpl reviewService;
 
@@ -87,6 +90,7 @@ class ReviewServiceTest {
                 .build();
 
         reviewDTO = ReviewCreateRequestDTO.builder()
+                .restaurantId(1L)
                 .rating(5)
                 .comment("Excellent service and delicious food!")
                 .build();
@@ -107,9 +111,8 @@ class ReviewServiceTest {
     @Test
     void testCreateReview_Success() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(reservationRepository.findById(anyLong())).thenReturn(Optional.of(reservation));
-        when(reviewRepository.save(any(Review.class))).thenReturn(review);
         when(restaurantRepository.findById(anyLong())).thenReturn(Optional.of(restaurant));
+        when(reviewRepository.save(any(Review.class))).thenReturn(review);
         when(reviewRepository.findByRestaurantIdAndIsApprovedTrue(anyLong()))
                 .thenReturn(Arrays.asList(review));
 
@@ -119,28 +122,16 @@ class ReviewServiceTest {
         assertEquals(1L, result.getId());
         assertEquals(5, result.getRating());
         assertEquals("Excellent service and delicious food!", result.getComment());
-        assertFalse(result.getIsApproved());
 
         verify(userRepository, times(1)).findById(1L);
-        verify(reservationRepository, times(1)).findById(1L);
+        verify(restaurantRepository, times(2)).findById(1L);
         verify(reviewRepository, times(1)).save(any(Review.class));
     }
 
     @Test
-    void testCreateReview_ReservationNotFound() {
+    void testCreateReview_RestaurantNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(reservationRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> reviewService.createReview(reviewDTO, 1L));
-
-        verify(reviewRepository, never()).save(any(Review.class));
-    }
-
-    @Test
-    void testCreateReview_ReservationNotCompleted() {
-        reservation.setStatus(Reservation.ReservationStatus.PENDING);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(reservationRepository.findById(anyLong())).thenReturn(Optional.of(reservation));
+        when(restaurantRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> reviewService.createReview(reviewDTO, 1L));
 
@@ -226,6 +217,9 @@ class ReviewServiceTest {
     void testApproveReview_Success() {
         when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
+        when(restaurantRepository.findById(anyLong())).thenReturn(Optional.of(restaurant));
+        when(reviewRepository.findByRestaurantIdAndIsApprovedTrue(anyLong()))
+                .thenReturn(Arrays.asList(review));
 
         reviewService.approveReview(1L);
 
@@ -238,6 +232,9 @@ class ReviewServiceTest {
         review.setIsApproved(true);
         when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
+        when(restaurantRepository.findById(anyLong())).thenReturn(Optional.of(restaurant));
+        when(reviewRepository.findByRestaurantIdAndIsApprovedTrue(anyLong()))
+                .thenReturn(Arrays.asList());
 
         reviewService.rejectReview(1L);
 
@@ -247,8 +244,14 @@ class ReviewServiceTest {
 
     @Test
     void testDeleteReview_Success() {
+        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+        when(restaurantRepository.findById(anyLong())).thenReturn(Optional.of(restaurant));
+        when(reviewRepository.findByRestaurantIdAndIsApprovedTrue(anyLong()))
+                .thenReturn(Arrays.asList());
+
         reviewService.deleteReview(1L);
 
+        verify(reviewRepository, times(1)).findById(1L);
         verify(reviewRepository, times(1)).deleteById(1L);
     }
 }

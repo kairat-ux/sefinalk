@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.ChangePasswordRequestDTO;
 import com.example.demo.dto.request.UserLoginRequestDTO;
 import com.example.demo.dto.request.UserRegistrationRequestDTO;
+import com.example.demo.dto.request.UserUpdateRequestDTO;
 import com.example.demo.dto.response.AuthResponseDTO;
 import com.example.demo.dto.response.UserResponseDTO;
 import com.example.demo.entity.User;
@@ -16,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -72,6 +75,34 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
-        return ResponseEntity.ok(null);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            UserResponseDTO user = userService.getUserById(userPrincipal.getId());
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponseDTO> updateProfile(@Valid @RequestBody UserUpdateRequestDTO request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            UserResponseDTO updatedUser = userService.updateUserProfile(userPrincipal.getId(), request);
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequestDTO request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            userService.changePassword(userPrincipal.getId(), request);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

@@ -1,11 +1,10 @@
-// ПУТЬ: src/main/java/com/example/demo/service/impl/RestaurantServiceImpl.java
-
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.request.RestaurantCreateRequestDTO;
 import com.example.demo.dto.response.RestaurantDetailResponseDTO;
 import com.example.demo.entity.Restaurant;
 import com.example.demo.entity.User;
+import com.example.demo.mapper.RestaurantMapper;
 import com.example.demo.repository.RestaurantRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.RestaurantService;
@@ -25,6 +24,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
+    private final RestaurantMapper restaurantMapper;
 
     @Override
     public RestaurantDetailResponseDTO createRestaurant(RestaurantCreateRequestDTO request, Long ownerId) {
@@ -48,7 +48,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .build();
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
-        return mapToDTO(savedRestaurant);
+        return restaurantMapper.toDetailResponseDTO(savedRestaurant);
     }
 
     @Override
@@ -56,14 +56,14 @@ public class RestaurantServiceImpl implements RestaurantService {
     public RestaurantDetailResponseDTO getRestaurantById(Long id) {
         Restaurant restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ресторан не найден"));
-        return mapToDTO(restaurant);
+        return restaurantMapper.toDetailResponseDTO(restaurant);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<RestaurantDetailResponseDTO> getAllRestaurants() {
         return restaurantRepository.findAllActive().stream()
-                .map(this::mapToDTO)
+                .map(restaurantMapper::toDetailResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional(readOnly = true)
     public List<RestaurantDetailResponseDTO> getRestaurantsByCity(String city) {
         return restaurantRepository.findByCity(city).stream()
-                .map(this::mapToDTO)
+                .map(restaurantMapper::toDetailResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -79,7 +79,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional(readOnly = true)
     public List<RestaurantDetailResponseDTO> getOwnerRestaurants(Long ownerId) {
         return restaurantRepository.findByOwnerId(ownerId).stream()
-                .map(this::mapToDTO)
+                .map(restaurantMapper::toDetailResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -107,21 +107,5 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setIsActive(false);
         restaurant.setUpdatedAt(LocalDateTime.now());
         restaurantRepository.save(restaurant);
-    }
-
-    private RestaurantDetailResponseDTO mapToDTO(Restaurant restaurant) {
-        return RestaurantDetailResponseDTO.builder()
-                .id(restaurant.getId())
-                .name(restaurant.getName())
-                .description(restaurant.getDescription())
-                .address(restaurant.getAddress())
-                .city(restaurant.getCity())
-                .phone(restaurant.getPhone())
-                .email(restaurant.getEmail())
-                .rating(restaurant.getRating())
-                .totalReviews(restaurant.getTotalReviews())
-                .isActive(restaurant.getIsActive())
-                .createdAt(restaurant.getCreatedAt())
-                .build();
     }
 }

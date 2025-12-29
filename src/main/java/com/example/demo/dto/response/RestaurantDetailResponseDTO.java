@@ -24,6 +24,5 @@ public class RestaurantDetailResponseDTO {
     private String email;
     private BigDecimal rating;
     private Integer totalReviews;
-    private Boolean isActive;
     private LocalDateTime createdAt;
 }

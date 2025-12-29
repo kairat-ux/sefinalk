@@ -4,7 +4,6 @@ export const reservationService = {
     createReservation: (data) => api.post('/reservations', data),
 
     getMyReservations: () => {
-        // Получаем userId из localStorage или AuthContext
         const user = JSON.parse(localStorage.getItem('user'));
         const userId = user?.id || 1;
         return api.get(`/reservations/user/${userId}`);

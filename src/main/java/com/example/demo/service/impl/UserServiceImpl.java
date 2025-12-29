@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.request.ChangePasswordRequestDTO;
 import com.example.demo.dto.request.UserRegistrationRequestDTO;
 import com.example.demo.dto.request.UserRoleUpdateRequestDTO;
+import com.example.demo.dto.request.UserUpdateRequestDTO;
 import com.example.demo.dto.response.UserResponseDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long id, UserRegistrationRequestDTO request) {
+    public UserResponseDTO updateUser(Long id, UserRegistrationRequestDTO request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -106,7 +107,31 @@ public class UserServiceImpl implements UserService {
         user.setPhone(request.getPhone());
         user.setUpdatedAt(LocalDateTime.now());
 
-        userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return mapToDTO(updatedUser);
+    }
+
+    @Override
+    public UserResponseDTO updateUserProfile(Long id, UserUpdateRequestDTO request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        user.setUpdatedAt(LocalDateTime.now());
+
+        User updatedUser = userRepository.save(user);
+        return mapToDTO(updatedUser);
     }
 
     @Override
@@ -127,7 +152,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Текущий пароль неверен");
+            throw new com.example.demo.exception.UnauthorizedAccessException("Текущий пароль неверен");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

@@ -44,7 +44,8 @@
       "Bash(./run_psql.bat)",
       "Bash(where:*)",
       "Bash(cmd /c \"taskkill /F /PID 22044\")",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(npm start)"
     ]
   }
 }

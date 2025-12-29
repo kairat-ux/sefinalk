@@ -1,5 +1,3 @@
-// ПУТЬ: src/main/java/com/example/demo/service/ReservationService.java
-
 package com.example.demo.service;
 
 import com.example.demo.dto.request.ReservationCreateRequestDTO;
